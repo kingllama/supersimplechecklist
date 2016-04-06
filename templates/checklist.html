@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Super Simple Checklist</title>
+    <script>
+        window.onload = function() {
+
+
+            window.addEventListener("click",function(event){
+                if(document.activeElement.tagName !== "TEXTAREA"){
+                    update_checklist(event);
+                }
+            });
+            var bind_textarea_events = function(textarea_element){
+                textarea_element.addEventListener("keyup",update_checklist);
+                textarea_element.addEventListener("keydown",update_checklist);
+                textarea_element.addEventListener("focus",update_checklist);
+            }
+
+            var add_another_checklist_item = function(){
+                var el = document.getElementById('main-checklist');
+                new_textarea = document.createElement("textarea");
+                new_textarea.setAttribute("placeholder", "+ Add list item");
+                bind_textarea_events(new_textarea)
+
+                new_checkbox = document.createElement("div");
+                new_checkbox.className = "checkbox"
+
+                new_deleter = document.createElement("div");
+                new_deleter.className = "deleter"
+
+                new_deleter.addEventListener("click",function(){
+                    this.parentNode.parentNode.removeChild(this.parentNode);
+                })
+
+                new_checklist_item = document.createElement("li")
+                new_checklist_item.appendChild(new_checkbox);
+                new_checklist_item.appendChild(new_textarea);
+                new_checklist_item.appendChild(new_deleter);
+                el.appendChild(new_checklist_item);
+            }
+
+            var update_checklist = function(event){
+                var all_checklist_items = document.getElementsByTagName('textarea')
+                if(event.keyCode == 13){
+                    event.preventDefault();
+                    this.value = this.value.replace(/\n/g,"")
+                    focus_next = false
+                    for (var i = 0; i < all_checklist_items.length; i++) {
+                        if(all_checklist_items[i] === this){
+                            focus_next = true
+                        } else if (focus_next){
+                            all_checklist_items[i].focus()
+                            focus_next = false;
+                            break
+                        }
+                    }
+                }
+
+                if(this.tagName === 'textarea'){
+                    this.style.height = "17px";
+                    if((this.scrollHeight - 33) % 23 === 0){
+                        this.style.height = this.scrollHeight - 10 + "px"
+                    }
+                };
+
+                add_another_checklist_item()
+
+                var items_to_delete = []
+                for (var i = 1; i <= all_checklist_items.length; i++) {
+                    var item = all_checklist_items[i-1]
+                    if (item.value.length < 1
+                        && i != all_checklist_items.length
+                        && item != document.activeElement) {
+                            items_to_delete.push(item)
+                    }
+                }
+                for (var i = 0; i < items_to_delete.length; i++) {
+                    items_to_delete[i].parentNode.parentNode.removeChild(items_to_delete[i].parentNode)
+                }
+            }
+
+            var all_textareas = document.getElementsByTagName('textarea')
+
+
+            for (var i = 0; i < all_textareas.length; i++) {
+                bind_textarea_events(all_textareas[i])
+            }
+
+            add_another_checklist_item()
+
+            if(event.keyCode == 13){
+                return false
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            font-size: 20px;
+            color: #555;
+        }
+
+        h1,h2,h3,h4,h5,h6 {
+            font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+            color: #222;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 40px;
+            margin-top: 80px;
+        }
+
+        .main-container {
+            margin: auto;
+            margin-top: 60px;
+            width: 40%;
+        }
+
+        #checklist-body {
+
+        }
+
+        ul {
+            padding: 0px;
+        }
+
+        li {
+            padding-top: 5px;
+            padding-bottom: 0px;
+            list-style-type: none;
+            border-bottom: 1px dashed #bbb;
+            padding-left: 2px;
+        }
+
+        li:first-child {
+            padding-top: 0px;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        li:last-child div {
+            display: none;
+        }
+
+        li textarea {
+            border: 0px;
+            width: 89%;
+            padding: 5px;
+            padding-left: 0px;
+            resize: none;
+            height: 1em;
+            outline: none;
+            overflow: default;
+        }
+
+        textarea::-webkit-input-placeholder { color:transparent; }
+        textarea:-moz-placeholder { color:transparent; }
+        textarea::-moz-placeholder { color:transparent; }
+        textarea:-ms-input-placeholder { color:transparent; }
+
+        li:last-child textarea::-webkit-input-placeholder { color:#bbb; }
+        li:last-child textarea:-moz-placeholder { color:#bbb; }
+        li:last-child textarea::-moz-placeholder { color:#bbb; }
+        li:last-child textarea:-ms-input-placeholder { color:#bbb; }
+
+        li div {
+            display: inline-block;
+            width: 5%;
+            position: relative;
+        }
+
+        li div.checkbox {
+
+        }
+        li div.deleter:after {
+            position: absolute;
+            top:-27px;
+            content:'✖';
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Super Simple Checklist</h1>
+    <div class="main-container" id="checklist-body">
+        <ul id="main-checklist">
+        </ul>
+    </div>
+</body>
+</html>
