@@ -7,7 +7,8 @@
 
 
             window.addEventListener("click",function(event){
-                if(document.activeElement.tagName !== "TEXTAREA"){
+                tag = document.activeElement.tagName
+                if(tag !== "LI" && tag !== "INPUT" && tag !== "TEXTAREA"){
                     update_checklist(event);
                 }
             });
@@ -23,8 +24,8 @@
                 new_textarea.setAttribute("placeholder", "+ Add list item");
                 bind_textarea_events(new_textarea)
 
-                new_checkbox = document.createElement("div");
-                new_checkbox.className = "checkbox"
+                new_checkbox = document.createElement("input");
+                new_checkbox.setAttribute("type", "checkbox");
 
                 new_deleter = document.createElement("div");
                 new_deleter.className = "deleter"
@@ -57,7 +58,7 @@
                     }
                 }
 
-                if(this.tagName === 'textarea'){
+                if(this.tagName === 'TEXTAREA'){
                     this.style.height = "17px";
                     if((this.scrollHeight - 33) % 23 === 0){
                         this.style.height = this.scrollHeight - 10 + "px"
@@ -71,6 +72,7 @@
                     var item = all_checklist_items[i-1]
                     if (item.value.length < 1
                         && i != all_checklist_items.length
+                        && i != 1
                         && item != document.activeElement) {
                             items_to_delete.push(item)
                     }
@@ -142,15 +144,16 @@
             border-bottom: none;
         }
 
-        li:last-child div {
+        li:last-child div, li:last-child input[type="checkbox"] {
             display: none;
         }
 
         li textarea {
+            padding-left: 25px;
             border: 0px;
-            width: 89%;
+            width: Calc(93% - 27px);
+            margin-left: 27px;
             padding: 5px;
-            padding-left: 0px;
             resize: none;
             height: 1em;
             outline: none;
@@ -167,18 +170,39 @@
         li:last-child textarea::-moz-placeholder { color:#bbb; }
         li:last-child textarea:-ms-input-placeholder { color:#bbb; }
 
-        li div {
+        li:last-child textarea {
+            padding-left: 25px;
+        }
+
+        li div, li input[type="checkbox"] {
             display: inline-block;
             width: 5%;
             position: relative;
         }
 
-        li div.checkbox {
-
+        li input[type="checkbox"] {
+            -webkit-appearance: none;
+            width: 19px;
+            height: 19px;
+            border: 2px solid #222;
+            color: #222;
+            border-radius: 2px;
+            position: absolute;
+            margin-top: 6px;
+            outline: none;
         }
+
+        li input[type="checkbox"]:checked:after {
+            content:"✔";
+            font-size: 20px;
+            text-shadow: 3px 0px 0px white, 1px -1px 0px white, 1px -3px 0px white;
+            position: absolute;
+            margin-top: -5px;
+        }
+
         li div.deleter:after {
             position: absolute;
-            top:-27px;
+            top:-25px;
             content:'✖';
             color: #bbb;
         }
@@ -188,6 +212,7 @@
     <h1>Super Simple Checklist</h1>
     <div class="main-container" id="checklist-body">
         <ul id="main-checklist">
+            <li><input type="checkbox"><textarea style="height: 23px;">Make a checklist!</textarea><div class="deleter"></div></li>
         </ul>
     </div>
 </body>
