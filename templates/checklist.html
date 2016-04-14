@@ -3,98 +3,98 @@
 <head>
     <title>Super Simple Checklist</title>
     <script>
-        window.onload = function() {
-
-
-            window.addEventListener("click",function(event){
-                tag = document.activeElement.tagName
-                if(tag !== "LI" && tag !== "INPUT" && tag !== "TEXTAREA"){
-                    update_checklist(event);
-                }
-            });
-            var bind_textarea_events = function(textarea_element){
-                textarea_element.addEventListener("keyup",update_checklist);
-                textarea_element.addEventListener("keydown",update_checklist);
-                textarea_element.addEventListener("focus",update_checklist);
-            }
-
-            var add_another_checklist_item = function(){
-                var el = document.getElementById('main-checklist');
-                new_textarea = document.createElement("textarea");
-                new_textarea.setAttribute("placeholder", "+ Add list item");
-                bind_textarea_events(new_textarea)
-
-                new_checkbox = document.createElement("input");
-                new_checkbox.setAttribute("type", "checkbox");
-
-                new_deleter = document.createElement("div");
-                new_deleter.className = "deleter"
-
-                new_deleter.addEventListener("click",function(){
-                    this.parentNode.parentNode.removeChild(this.parentNode);
-                })
-
-                new_checklist_item = document.createElement("li")
-                new_checklist_item.appendChild(new_checkbox);
-                new_checklist_item.appendChild(new_textarea);
-                new_checklist_item.appendChild(new_deleter);
-                el.appendChild(new_checklist_item);
-            }
-
-            var update_checklist = function(event){
-                var all_checklist_items = document.getElementsByTagName('textarea')
-                if(event.keyCode == 13){
-                    event.preventDefault();
-                    this.value = this.value.replace(/\n/g,"")
-                    focus_next = false
-                    for (var i = 0; i < all_checklist_items.length; i++) {
-                        if(all_checklist_items[i] === this){
-                            focus_next = true
-                        } else if (focus_next){
-                            all_checklist_items[i].focus()
-                            focus_next = false;
-                            break
-                        }
+        window.onload = function(){
+            (function(callback){
+                window.addEventListener("click",function(event){
+                    tag = document.activeElement.tagName
+                    if(tag !== "LI" && tag !== "INPUT" && tag !== "TEXTAREA"){
+                        update_checklist(event);
                     }
-                }
+                });
 
-                if(this.tagName === 'TEXTAREA'){
-                    this.style.height = "17px";
-                    if((this.scrollHeight - 33) % 23 === 0){
-                        this.style.height = this.scrollHeight - 10 + "px"
-                    }
+                var bind_textarea_events = function(textarea_element){
+                    textarea_element.addEventListener("keyup",update_checklist);
+                    textarea_element.addEventListener("keydown",update_checklist);
+                    textarea_element.addEventListener("focus",update_checklist);
                 };
 
-                add_another_checklist_item()
+                var add_another_checklist_item = function(){
+                    var el = document.getElementById('main-checklist');
+                    new_textarea = document.createElement("textarea");
+                    new_textarea.setAttribute("placeholder", "+ Add list item");
+                    bind_textarea_events(new_textarea)
 
-                var items_to_delete = []
-                for (var i = 1; i <= all_checklist_items.length; i++) {
-                    var item = all_checklist_items[i-1]
-                    if (item.value.length < 1
-                        && i != all_checklist_items.length
-                        && i != 1
-                        && item != document.activeElement) {
-                            items_to_delete.push(item)
+                    new_checkbox = document.createElement("input");
+                    new_checkbox.setAttribute("type", "checkbox");
+
+                    new_deleter = document.createElement("div");
+                    new_deleter.className = "deleter"
+
+                    new_deleter.addEventListener("click",function(){
+                        this.parentNode.parentNode.removeChild(this.parentNode);
+                    })
+
+                    new_checklist_item = document.createElement("li")
+                    new_checklist_item.appendChild(new_checkbox);
+                    new_checklist_item.appendChild(new_textarea);
+                    new_checklist_item.appendChild(new_deleter);
+                    el.appendChild(new_checklist_item);
+                }
+
+                var update_checklist = function(event){
+                    var all_checklist_items = document.getElementsByTagName('textarea')
+                    if(event.keyCode == 13){
+                        event.preventDefault();
+                        this.value = this.value.replace(/\n/g,"")
+                        focus_next = false
+                        for (var i = 0; i < all_checklist_items.length; i++) {
+                            if(all_checklist_items[i] === this){
+                                focus_next = true
+                            } else if (focus_next){
+                                all_checklist_items[i].focus()
+                                focus_next = false;
+                                break
+                            }
+                        }
+                    }
+
+                    if(this.tagName === 'TEXTAREA'){
+                        this.style.height = "17px";
+                        if((this.scrollHeight - 33) % 23 === 0){
+                            this.style.height = this.scrollHeight - 10 + "px"
+                        }
+                    };
+
+                    add_another_checklist_item()
+
+                    var items_to_delete = []
+                    for (var i = 1; i <= all_checklist_items.length; i++) {
+                        var item = all_checklist_items[i-1]
+                        if (item.value.length < 1
+                            && i != all_checklist_items.length
+                            && i != 1
+                            && item != document.activeElement) {
+                                items_to_delete.push(item)
+                        }
+                    }
+                    for (var i = 0; i < items_to_delete.length; i++) {
+                        items_to_delete[i].parentNode.parentNode.removeChild(items_to_delete[i].parentNode)
                     }
                 }
-                for (var i = 0; i < items_to_delete.length; i++) {
-                    items_to_delete[i].parentNode.parentNode.removeChild(items_to_delete[i].parentNode)
+
+                var all_textareas = document.getElementsByTagName('textarea')
+
+
+                for (var i = 0; i < all_textareas.length; i++) {
+                    bind_textarea_events(all_textareas[i])
                 }
-            }
 
-            var all_textareas = document.getElementsByTagName('textarea')
+                add_another_checklist_item()
+                callback()
+            })(function(){
 
-
-            for (var i = 0; i < all_textareas.length; i++) {
-                bind_textarea_events(all_textareas[i])
-            }
-
-            add_another_checklist_item()
-
-            if(event.keyCode == 13){
-                return false
-            }
-        }
+            });
+        };
     </script>
     <style>
         * {
@@ -188,7 +188,7 @@
             color: #222;
             border-radius: 2px;
             position: absolute;
-            margin-top: 6px;
+            margin-top: 9px;
             outline: none;
         }
 
@@ -214,6 +214,9 @@
         <ul id="main-checklist">
             <li><input type="checkbox"><textarea style="height: 23px;">Make a checklist!</textarea><div class="deleter"></div></li>
         </ul>
+    </div>
+    <div class="bottom-container">
+        <p>Save</p>
     </div>
 </body>
 </html>
