@@ -5,53 +5,92 @@
     <script>
         window.onload = function(){
             (function(callback){
+                var CHECKLIST = {}
+                var ALLTEXTAREAS
+
                 window.addEventListener("click",function(event){
                     tag = document.activeElement.tagName
                     if(tag !== "LI" && tag !== "INPUT" && tag !== "TEXTAREA"){
-                        update_checklist(event);
+                        updateChecklist(event);
                     }
                 });
 
                 var bind_textarea_events = function(textarea_element){
-                    textarea_element.addEventListener("keyup",update_checklist);
-                    textarea_element.addEventListener("keydown",update_checklist);
-                    textarea_element.addEventListener("focus",update_checklist);
+                    textarea_element.addEventListener("keyup",updateChecklist);
+                    textarea_element.addEventListener("keydown",updateChecklist);
+                    textarea_element.addEventListener("focus",updateChecklist);
                 };
 
-                var add_another_checklist_item = function(){
+                var add_checklist_item = function(text, checked){
+                    if(text === undefined){
+                        text = ""
+                    }
+                    if(checked === undefined){
+                        checked = false
+                    }
                     var el = document.getElementById('main-checklist');
                     new_textarea = document.createElement("textarea");
                     new_textarea.setAttribute("placeholder", "+ Add list item");
+                    new_textarea.value = text;
+                    new_textarea.style.height = "23px";
                     bind_textarea_events(new_textarea)
 
                     new_checkbox = document.createElement("input");
                     new_checkbox.setAttribute("type", "checkbox");
+                    new_checkbox.checked = checked
+                    new_checkbox.addEventListener("click",updateData)
 
                     new_deleter = document.createElement("div");
                     new_deleter.className = "deleter"
 
                     new_deleter.addEventListener("click",function(){
                         this.parentNode.parentNode.removeChild(this.parentNode);
+                        ALLTEXTAREAS = document.getElementsByTagName('textarea')
+                        updateData()
                     })
 
                     new_checklist_item = document.createElement("li")
+                    new_checklist_item.className = "checklist-item"
                     new_checklist_item.appendChild(new_checkbox);
                     new_checklist_item.appendChild(new_textarea);
                     new_checklist_item.appendChild(new_deleter);
                     el.appendChild(new_checklist_item);
+                    ALLTEXTAREAS = document.getElementsByTagName('textarea')
                 }
 
-                var update_checklist = function(event){
-                    var all_checklist_items = document.getElementsByTagName('textarea')
+                var updateTextareaSize = function(self){
+                    self.style.height = "17px";
+                        if((self.scrollHeight - 33) % 23 === 0){
+                            self.style.height = self.scrollHeight - 10 + "px"
+                        }
+                }
+
+                var updateData = function(){
+                    localStorage.clear()
+                    for (var i = 0; i < ALLTEXTAREAS.length; i++) {
+                        var item = ALLTEXTAREAS[i].parentNode
+                        var string_to_save = "f:"
+                        if(item.children[0].checked === true){
+                            string_to_save = "t:"
+                        }
+
+                        string_to_save = string_to_save + item.children[1].value
+
+                        if(string_to_save !== "f:"){
+                            localStorage.setItem("checklist-item-" + i, string_to_save)
+                        }
+                    }
+                }
+                var updateChecklist = function(event){
                     if(event.keyCode == 13){
                         event.preventDefault();
                         this.value = this.value.replace(/\n/g,"")
                         focus_next = false
-                        for (var i = 0; i < all_checklist_items.length; i++) {
-                            if(all_checklist_items[i] === this){
+                        for (var i = 0; i < ALLTEXTAREAS.length; i++) {
+                            if(ALLTEXTAREAS[i] === this){
                                 focus_next = true
                             } else if (focus_next){
-                                all_checklist_items[i].focus()
+                                ALLTEXTAREAS[i].focus()
                                 focus_next = false;
                                 break
                             }
@@ -59,19 +98,15 @@
                     }
 
                     if(this.tagName === 'TEXTAREA'){
-                        this.style.height = "17px";
-                        if((this.scrollHeight - 33) % 23 === 0){
-                            this.style.height = this.scrollHeight - 10 + "px"
-                        }
+                        updateTextareaSize(this)
                     };
-
-                    add_another_checklist_item()
+                    add_checklist_item()
 
                     var items_to_delete = []
-                    for (var i = 1; i <= all_checklist_items.length; i++) {
-                        var item = all_checklist_items[i-1]
+                    for (var i = 1; i <= ALLTEXTAREAS.length; i++) {
+                        var item = ALLTEXTAREAS[i-1]
                         if (item.value.length < 1
-                            && i != all_checklist_items.length
+                            && i != ALLTEXTAREAS.length
                             && i != 1
                             && item != document.activeElement) {
                                 items_to_delete.push(item)
@@ -80,19 +115,49 @@
                     for (var i = 0; i < items_to_delete.length; i++) {
                         items_to_delete[i].parentNode.parentNode.removeChild(items_to_delete[i].parentNode)
                     }
+                    ALLTEXTAREAS = document.getElementsByTagName('textarea')
+                    updateData()
+                }
+                updateSizeOfAllTextareas = function(){
+                    for (var i = 0; i < ALLTEXTAREAS.length; i++) {
+                        updateTextareaSize(ALLTEXTAREAS[i])
+                    }
                 }
 
-                var all_textareas = document.getElementsByTagName('textarea')
+                window.onResize = updateSizeOfAllTextareas
 
+                var l_s_index = 0
+                var checklist_item
+                do {
+                    checklist_item = localStorage.getItem("checklist-item-" + l_s_index)
+                    if(checklist_item){
+                        var checked = false
+                        if(checklist_item[0] == "t"){
+                            checked = true
+                        }
+                        add_checklist_item(checklist_item.substring(2,checklist_item.length),checked)
 
-                for (var i = 0; i < all_textareas.length; i++) {
-                    bind_textarea_events(all_textareas[i])
+                    }
+
+                    l_s_index += 1
+                } while (checklist_item)
+                ALLTEXTAREAS = document.getElementsByTagName('textarea')
+                if(ALLTEXTAREAS.length < 1){
+                    add_checklist_item("Edit Me!")
                 }
-
-                add_another_checklist_item()
+                add_checklist_item()
+                localStorage.clear()
+                updateData()
+                updateSizeOfAllTextareas()
                 callback()
             })(function(){
+                // gen new random ID
+                // put the new random ID into an input with the URL
+                // so it should look like this example.com/X7bf00F
 
+                //have "save/share link"- click does:
+                //saving event (ajax to server w/ random ID)
+                //show link that shows the url above ^
             });
         };
     </script>
@@ -206,17 +271,22 @@
             content:'✖';
             color: #bbb;
         }
+
+        #bottom-container {
+            text-align: center;
+        }
+
+        @media screen and (max-width: 1130px)
     </style>
 </head>
 <body>
     <h1>Super Simple Checklist</h1>
     <div class="main-container" id="checklist-body">
         <ul id="main-checklist">
-            <li><input type="checkbox"><textarea style="height: 23px;">Make a checklist!</textarea><div class="deleter"></div></li>
         </ul>
     </div>
-    <div class="bottom-container">
-        <p>Save</p>
+    <div id="bottom-container">
+        <p>Clear | Save</p>
     </div>
 </body>
 </html>
