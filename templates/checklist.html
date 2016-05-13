@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Super Simple Checklist</title>
+    <meta name="viewport" content="width=device-width" />
     <script>
         window.onload = function(){
             (function(callback){
@@ -59,10 +60,13 @@
                 }
 
                 var updateTextareaSize = function(self){
-                    self.style.height = "17px";
+                    if(self.value.length > 10){
+                        self.style.height = "17px";
                         if((self.scrollHeight - 33) % 23 === 0){
+                            console.log("Has to run")
                             self.style.height = self.scrollHeight - 10 + "px"
                         }
+                    }
                 }
 
                 var updateData = function(){
@@ -268,6 +272,7 @@
         li div.deleter:after {
             position: absolute;
             top:-25px;
+            right: 5px;
             content:'✖';
             color: #bbb;
         }
@@ -276,7 +281,39 @@
             text-align: center;
         }
 
-        @media screen and (max-width: 1130px)
+        @media screen and (max-width: 500px){
+            .main-container {
+                width: 95%;
+            }
+
+            li textarea {
+                width: Calc(90% - 25px);
+            }
+        }
+
+        @media screen and (max-width: 640px) and (min-width: 501px){
+            .main-container {
+                width: 90%;
+            }
+            li textarea {
+                width: Calc(90% - 25px);
+            }
+        }
+
+        @media screen and (max-width: 1080px) and (min-width: 640px){
+            .main-container {
+                width: 60%;
+            }
+            li textarea {
+                width: Calc(91% - 25px);
+            }
+        }
+
+        @media screen and (min-width: 1200px){
+            li textarea {
+                width: Calc(92% - 27px);
+            }
+        }
     </style>
 </head>
 <body>
