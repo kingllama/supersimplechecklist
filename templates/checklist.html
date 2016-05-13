@@ -159,9 +159,17 @@
                 // put the new random ID into an input with the URL
                 // so it should look like this example.com/X7bf00F
 
-                //have "save/share link"- click does:
+                //have "save/share link"- click should:
                 //saving event (ajax to server w/ random ID)
                 //show link that shows the url above ^
+                /*
+                Logic:
+                    if you are on a "saved" page then
+                        - open a connection to constantly save
+                        - Do not display the save button
+                    else
+                        - just save to local storage.
+                */
             });
         };
     </script>
@@ -262,7 +270,7 @@
         }
 
         li input[type="checkbox"]:checked:after {
-            content:"✔";
+            content:"\2713"; /* Checkmark */
             font-size: 20px;
             text-shadow: 3px 0px 0px white, 1px -1px 0px white, 1px -3px 0px white;
             position: absolute;
@@ -273,7 +281,7 @@
             position: absolute;
             top:-25px;
             right: 5px;
-            content:'✖';
+            content:'\2716'; /* "X" */
             color: #bbb;
         }
 
